@@ -1,0 +1,208 @@
+Web Tech Logic
+1. Factorial: 
+Fact=fact*1
+
+2. Fibonacci series:
+1st=0
+2nd=1
+Next=1st + 2nd 
+1st=2nd 
+2nd = next 
+
+3. Sum:
+(N*(N+1))/2
+
+4. File open and close:
+Fopen(‘input.txt’,’r’)
+Fgets(file) to get data
+Fopen(‘output.txt’,’a/w’)
+Fwrite(file2,$data)
+Fclose()
+
+5. Reverse:
+Rev=0;
+While num>0
+Rev=rev*10
+Rev=rev+(num%10)
+Num=int(num/10)
+
+6. Search string:
+Str_word_count to count string
+Stripos(file,$word) to search
+
+7. Class:
+Class book{
+Define $variables
+Public function __construct($variables){
+$this->variable=$variable }
+
+8. MySQL:
+Object Oriented method:
+$conn=new mysqli(‘localhost’,’root’,’’,’db_name’);	
+To add stuff:
+$stmt=conn->prepare(“INSERT INTO table (columns) VALUES (?,?);
+$stmt->bind_param(‘si[string, integer]’, $title, $year);
+$stmt->execute();
+$stmt->close();
+To view stuff:
+result=conn->query(“SELECT * FROM table”);
+To store it in an array:
+$array=[]
+While ($row=$result->fetch_assoc(){$array[]=$row})
+
+Mysqli query method:
+Prepare statement:
+Run mysqli_query($conn, $sql);
+Update details: UPDATE table SET columnname=’$columnname’ where eid=$variable;
+
+9. PDO:
+db.php
+$pdo=new PDO(“mysql:host=$host;dbname=$dbname,$username,$password);
+Index.php include ‘db.php’
+$stmt=$pdo->prepare(‘INSERT INTO table (columns) VALUES (?,?)
+$stmt->execute($vaue1,$value2);
+Fetch data:
+$row=$stmt->fetch(PDO::FETCH_ASSOC) #row becomes an array
+10.  Session:
+session_start()
+$_SESSION[‘name’]=$name;
+Call the name from $_SESSION[‘name’]
+session_unset() to delete
+session_destroy(); 
+
+11. Cookies:
+session_start();
+setcookie(‘name’,$name,time()+timeinseconds);
+Call it from $_COOKIE[‘name’]
+session_start(); 
+session_unset(); 
+session_destroy(); // Clear the cookies after an hour 
+setcookie("name", "", time() - 3600);
+
+12. Laravel:
+Commands:
+To create a laravel project: composer create-project laravel/laravel projectname “9.*”
+To run: php artisan serve
+To create database model: php artisan make:model modelname -m
+Make changes to public function up()
+{
+Schema::create(‘tablename’,function(Blueprint $table){
+table->id
+table->string(‘name’)
+}
+To make the table, run: php artisan migrate
+To make controller: php artisan make:controller ControllerName -resource
+
+13. Node.js:
+mkdir to make folder
+npm init -y
+npm install cors
+npm install express
+create server:
+const server = http.createServer((req,res)=>{res.writeHead(200,{‘Content-Type’:’text/plain’});
+res.end(‘Hello’);
+server.listen(3000,()=> { console.log("Server running at http://localhost:3000/"); });
+
+12. Index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bank Account</title>
+</head>
+<body>
+  <h3>Chirag Shetty - TCS2526087</h3>
+  <h1>Bank Account</h1>
+
+  <p>Balance: <span id="balance">0</span></p>
+
+  <input type="number" id="amount" placeholder="Enter amount" />
+  <button id="creditBtn">Credit</button>
+  <button id="debitBtn">Debit</button>
+
+  <script>
+    const balanceSpan = document.getElementById('balance');
+    const amountInput = document.getElementById('amount');
+    const creditBtn = document.getElementById('creditBtn');
+    const debitBtn = document.getElementById('debitBtn');
+
+    function updateBalance(newBalance) {
+      balanceSpan.textContent = newBalance;
+    }
+
+    creditBtn.addEventListener('click', () => {
+      const amount = parseFloat(amountInput.value);
+      if (isNaN(amount) || amount <= 0) {
+        alert('Please enter a valid amount greater than 0');
+        return;
+      }
+
+      fetch('/credit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          updateBalance(data.balance);
+          amountInput.value = '';
+        })
+        .catch((err) => {
+          alert('Error crediting amount');
+          console.error(err);
+        });
+    });
+
+    debitBtn.addEventListener('click', () => {
+      const amount = parseFloat(amountInput.value);
+      if (isNaN(amount) || amount <= 0) {
+        alert('Please enter a valid amount greater than 0');
+        return;
+      }
+
+      fetch('/debit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            alert(data.error);
+          } else {
+            updateBalance(data.balance);
+            amountInput.value = '';
+          }
+        })
+        .catch((err) => {
+          alert('Error debiting amount');
+          console.error(err);
+        });
+    });
+  </script>
+</body>
+</html>
+
+Server.js
+const express = require('express');
+const app = express();
+let balance = 0;
+
+app.use(express.json());
+app.use(express.static('.'));
+
+app.post('/credit', (req, res) => {
+  balance += req.body.amount;
+  res.json({ balance });
+});
+
+app.post('/debit', (req, res) => {
+  if (req.body.amount > balance) {
+    return res.json({ balance, error: 'Insufficient balance!' });
+  }
+  balance -= req.body.amount;
+  res.json({ balance });
+});
+
+app.listen(3000, () => console.log('Server running at host http://localhost:3000'));
